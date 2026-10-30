@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Ders Notları & Alıştırma Laboratuvarı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Fira Code', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Python Syntax Highlighting colors */
+    .py-keyword { color: #f472b6; font-weight: 600; }
+    .py-string { color: #4ade80; }
+    .py-number { color: #fbbf24; }
+    .py-comment { color: #64748b; font-style: italic; }
+    .py-function { color: #60a5fa; }
+    .py-operator { color: #38bdf8; }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased bg-slate-950 text-slate-100 selection:bg-sky-500 selection:text-white">
+
+  <!-- Top Mobile Header -->
+  <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
+    <div class="flex items-center space-x-3">
+      <button id="mobile-menu-btn" class="p-2 text-slate-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 rounded-lg">
+        <i class="fa-solid fa-bars text-xl"></i>
+      </button>
+      <div class="flex items-center space-x-2">
+        <i class="fa-brands fa-python text-yellow-400 text-2xl"></i>
+        <span class="font-bold text-slate-100 tracking-tight">Python Atölyesi</span>
+      </div>
+    </div>
+    <span id="mobile-current-mode" class="text-xs font-mono px-2.5 py-1 bg-slate-800 border border-slate-700 text-sky-400 rounded-full">
+      Ders Notları
+    </span>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden relative">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-72 bg-slate-900 border-r border-slate-800/80 flex flex-col z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none">
+      
+      <!-- App Title in Sidebar -->
+      <div class="p-4 border-b border-slate-800 hidden lg:flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
+          <i class="fa-brands fa-python text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-100 leading-tight">Python Atölyesi</h1>
+          <p class="text-xs text-slate-400">Muhammet Emir</p>
+        </div>
+      </div>
+
+      <!-- Main Navigation Modes (Tabs) -->
+      <div class="p-3 border-b border-slate-800/80 space-y-1">
+        <button id="nav-notes-btn" onclick="switchMainTab('notes')" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-xs transition-all bg-sky-600/20 border border-sky-500/40 text-sky-300">
+          <i class="fa-solid fa-book-open text-sky-400"></i>
+          <span>Ders Notları (10 Dosya)</span>
+        </button>
+        <button id="nav-practice-btn" onclick="switchMainTab('practice')" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-xs transition-all text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 border border-transparent">
+          <i class="fa-solid fa-code text-amber-400"></i>
+          <span>Alıştırma & Kod Yaz (Serbest)</span>
+        </button>
+      </div>
+
+      <!-- File List Container (Only visible in Notes mode) -->
+      <div id="notes-file-section" class="flex-1 flex flex-col min-h-0">
+        <!-- Quick Info / Search -->
+        <div class="p-3 border-b border-slate-800/60">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+            <input type="text" id="search-input" placeholder="Dosya ara..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-colors">
+          </div>
+        </div>
+
+        <!-- File List -->
+        <div class="flex-1 overflow-y-auto p-3 space-y-1.5" id="file-list">
+          <!-- Dynamically injected via JS -->
+        </div>
+      </div>
+
+      <!-- Practice Challenges Container (Only visible in Practice mode) -->
+      <div id="practice-challenges-section" class="flex-1 overflow-y-auto p-3 space-y-2 hidden">
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 px-1 py-1 flex items-center justify-between">
+          <span>Pratik Soruları</span>
+          <span class="text-[10px] bg-slate-800 text-amber-400 px-2 py-0.5 rounded-full">Mini Görevler</span>
+        </div>
+        <div id="challenges-list" class="space-y-2">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="p-3 border-t border-slate-800/80 text-xs text-slate-500 text-center bg-slate-900/50">
+        <i class="fa-solid fa-laptop-code text-slate-400 mr-1"></i> Bilişim Teknolojileri
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-950 p-3 sm:p-6 lg:p-8 space-y-6">
+
+      <!-- MODE 1: DERS NOTLARI VIEW -->
+      <div id="notes-view" class="space-y-6">
+        <!-- Header Card -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800/80 border border-slate-800/80 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+          <div>
+            <div class="flex items-center space-x-2 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-1">
+              <span class="inline-block w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+              <span>Aktif Dosya</span>
+            </div>
+            <h2 id="active-file-title" class="text-xl sm:text-2xl font-bold text-white font-mono flex items-center gap-2">
+              piton 1.py
+            </h2>
+            <p id="active-file-desc" class="text-xs sm:text-sm text-slate-400 mt-1">
+              Temel değişken tanımlama ve print çıktıları.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start md:self-auto">
+            <button id="copy-code-btn" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium border border-slate-700 transition-all shadow-sm">
+              <i class="fa-regular fa-copy"></i>
+              <span>Kodu Kopyala</span>
+            </button>
+            <button id="run-code-btn" class="flex items-center space-x-2 bg-sky-600 hover:bg-sky-500 active:scale-95 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-lg shadow-sky-600/30">
+              <i class="fa-solid fa-play"></i>
+              <span>Çalıştır</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Code & Terminal Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- Code Window (7 cols on lg) -->
+          <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
+            <div class="bg-slate-900/90 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                <span id="code-filename-badge" class="ml-2 text-xs font-mono text-slate-400 font-medium">piton 1.py</span>
+              </div>
+              <span class="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 bg-slate-800 text-slate-400 rounded">Python 3</span>
+            </div>
+            
+            <div class="relative bg-slate-950/80 overflow-x-auto p-4 sm:p-5 font-mono text-xs sm:text-sm leading-relaxed max-h-[480px]">
+              <pre id="code-display" class="whitespace-pre text-slate-200"><code></code></pre>
+            </div>
+          </div>
+
+          <!-- Terminal Output Window (5 cols on lg) -->
+          <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
+            <div class="bg-slate-900/90 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+              <div class="flex items-center space-x-2 text-slate-300 text-xs font-mono font-medium">
+                <i class="fa-solid fa-terminal text-sky-400"></i>
+                <span>Konsol / Çıktı Ekranı</span>
+              </div>
+              <button id="clear-terminal-btn" class="text-[11px] text-slate-400 hover:text-slate-200 transition-colors">
+                <i class="fa-solid fa-rotate-left mr-1"></i> Temizle
+              </button>
+            </div>
+
+            <div id="terminal-body" class="p-4 bg-black/80 font-mono text-xs sm:text-sm min-h-[250px] max-h-[480px] overflow-y-auto space-y-2 text-emerald-400">
+              <div class="text-slate-500 text-xs italic">Simülatör hazır. "Çalıştır" butonuna basarak kodu test edebilirsiniz.</div>
+            </div>
+
+            <div id="interactive-input-container" class="hidden border-t border-slate-800 p-3 bg-slate-900/90 flex items-center gap-2">
+              <span id="input-prompt" class="text-xs font-mono text-sky-400 whitespace-nowrap">Input:</span>
+              <input type="text" id="user-input-field" placeholder="Değer yazıp Enter'a bas..." class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-sky-500">
+              <button id="submit-input-btn" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium">
+                Gönder
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Explanation / Notes Card -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 sm:p-5">
+          <h3 class="text-sm font-semibold text-slate-200 mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-circle-info text-sky-400"></i> Kod Açıklaması & Notlar
+          </h3>
+          <p id="code-notes" class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+            Bu kod değişken tanımlama ve temel metin birleştirme işlemlerini gösterir.
+          </p>
+        </div>
+      </div>
+
+
+      <!-- MODE 2: ALIŞTIRMA & KOD YAZMA ALANI (PLAYGROUND) -->
+      <div id="practice-view" class="space-y-6 hidden">
+        <!-- Header Card -->
+        <div class="bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900 border border-amber-500/20 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-1">
+              <i class="fa-solid fa-flask"></i>
+              <span>Serbest Kod Yazma Laboratuvarı</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold text-white font-mono flex items-center gap-2">
+              Kendi Python Kodunu Dönüştür & Dene
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1">
+              Burada kendi kodlarını yazabilir veya soldaki örnek pratik sorularından "Çözümü Yükle" diyerek deneyebilirsin.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start md:self-auto">
+            <button id="clear-editor-btn" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 px-3 py-2 rounded-xl text-xs font-medium border border-slate-700 transition-all">
+              <i class="fa-solid fa-trash-can"></i>
+              <span>Temizle</span>
+            </button>
+            <button id="run-playground-btn" class="flex items-center space-x-2 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-lg shadow-amber-600/20">
+              <i class="fa-solid fa-play"></i>
+              <span>Kodu Çalıştır</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Code Insert Shortcuts Bar (Super helpful on mobile) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt text-amber-400"></i> Mobil Hızlı Kod Ekleme Butonları:
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="insertSnippet('print(\'\')')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-mono text-sky-300 hover:text-white transition-colors">print()</button>
+            <button onclick="insertSnippet('input(\'...\')')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-mono text-emerald-300 hover:text-white transition-colors">input()</button>
+            <button onclick="insertSnippet('int(input(\'...\'))')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-mono text-emerald-400 hover:text-white transition-colors">int(input())</button>
+            <button onclick="insertSnippet('if :\n    \nelse:\n    ')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-mono text-pink-400 hover:text-white transition-colors">if / else</button>
+            <button onclick="insertSnippet('ad = \"Muhammet\"')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-mono text-amber-300 hover:text-white transition-colors">değişken =</button>
+            <button onclick="insertSnippet('# Not ekle')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-mono text-slate-400 hover:text-white transition-colors"># yorum</button>
+          </div>
+        </div>
+
+        <!-- Editor & Output Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- Code Textarea Editor -->
+          <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
+            <div class="bg-slate-900/90 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-code text-amber-400 text-xs"></i>
+                <span class="text-xs font-mono text-slate-300 font-medium">main.py (Yazılabilir Editör)</span>
+              </div>
+              <span class="text-[10px] text-slate-400">Akıllı Hata Tespit Sistemi Aktif</span>
+            </div>
+            <div class="p-2 bg-slate-950">
+              <textarea id="playground-editor" spellcheck="false" placeholder="# Python kodunu buraya yazabilirsin...
+ad = input(&quot;Adınız nedir? &quot;)
+print(&quot;Merhaba&quot;, ad)" class="w-full h-80 bg-slate-950 text-slate-100 font-mono text-xs sm:text-sm p-3 focus:outline-none resize-y leading-relaxed border-0"></textarea>
+            </div>
+          </div>
+
+          <!-- Playground Terminal & Diagnostic Panel -->
+          <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
+            <div class="bg-slate-900/90 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+              <div class="flex items-center space-x-2 text-slate-300 text-xs font-mono font-medium">
+                <i class="fa-solid fa-terminal text-amber-400"></i>
+                <span>Çıktı & Hata Analiz Paneli</span>
+              </div>
+              <button id="clear-pg-terminal-btn" class="text-[11px] text-slate-400 hover:text-slate-200 transition-colors">
+                <i class="fa-solid fa-rotate-left mr-1"></i> Temizle
+              </button>
+            </div>
+
+            <div id="pg-terminal-body" class="p-4 bg-black/80 font-mono text-xs sm:text-sm min-h-[300px] max-h-[480px] overflow-y-auto space-y-2 text-amber-400">
+              <div class="text-slate-500 text-xs italic">Kod yazıp "Kodu Çalıştır" butonuna basınız. Hatalar otomatik tespit edilir.</div>
+            </div>
+
+            <div id="pg-interactive-input-container" class="hidden border-t border-slate-800 p-3 bg-slate-900/90 flex items-center gap-2">
+              <span id="pg-input-prompt" class="text-xs font-mono text-amber-400 whitespace-nowrap">Input:</span>
+              <input type="text" id="pg-user-input-field" placeholder="Değer yazıp Enter'a bas..." class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
+              <button id="pg-submit-input-btn" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium">
+                Gönder
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-800 border border-slate-700 text-white px-4 py-2.5 rounded-xl text-xs font-medium shadow-2xl flex items-center space-x-2 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none">
+    <i id="toast-icon" class="fa-solid fa-check text-emerald-400 text-sm"></i>
+    <span id="toast-msg">Kopyalandı!</span>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // Python files database
+    const pythonFiles = [
+      {
+        id: "piton-1",
+        name: "piton 1.py",
+        desc: "Kişisel bilgiler için değişkenler ve yazdırma İşlemleri.",
+        notes: "Metin (String), Tam Sayı (Integer) ve Ondalıklı Sayı (Float) değişken türleri kullanılmıştır. `\\n` ifadesi yeni satıra geçmeyi sağlar.",
+        code: `ad="ibrahim"
+yas=14
+kilo=66.5
+c="E"
+print("Adın=",ad,"\n","yaşın=",yas,"\n","kilo=",kilo,"\n","cinsiyet=",c)
+#print("yaşın=",yas)
+#print("kilo=",kilo)
+#print("cinsiyet=",cinsiyet)`,
+        hasInput: false,
+        run: function(outputFn) {
+          const ad="ibrahim";
+          const yas=14;
+          const kilo=66.5;
+          const c="E";
+          outputFn(`Adın= ${ad} \n yaşın= ${yas} \n kilo= ${kilo} \n cinsiyet= ${c}`);
+        }
+      },
+      {
+        id: "piton-2",
+        name: "piton 2.py",
+        desc: "Okul bilgileri değişken tanımlamaları.",
+        notes: "Öğrenci okul, sınıf ve alan bilgileri değişkene atanıp ekrana bastırılıyor.",
+        code: `okul="ipek yolu"
+sınıf=9
+alan="bilişim"
+ensevdigimizhoca="güngör.aksakallı"
+print("okulun=",okul,"\n","sınıfın=",sınıf,"\n","alan=",alan,"\n","ensevdigimizhoca=",ensevdigimizhoca)
+#print("sınıfın=",sınıf)
+#print("alan=",alan)
+#print("ensevdigimizhoca=",ensevdigimizhoca)`,
+        hasInput: false,
+        run: function(outputFn) {
+          const okul="ipek yolu";
+          const sınıf=9;
+          const alan="bilişim";
+          const ensevdigimizhoca="güngör.aksakallı";
+          outputFn(`okulun= ${okul} \n sınıfın= ${sınıf} \n alan= ${alan} \n ensevdigimizhoca= ${ensevdigimizhoca}`);
+        }
+      },
+      {
+        id: "piton-3",
+        name: "piton 3.py",
+        desc: "Ad, soyad, takım ve sevilen hoca değişkenleri.",
+        notes: "Türkçe karakter içeren değişken isimleri (`yaş`) kullanım örneği.",
+        code: `ad="ibrahim efe"
+soyad="tapanoğlu"
+yaş=14
+cinsiyet="E"
+takım="FB"
+sevdigihoca="güngör hoca"
+print("adın=",ad,"\n","soyadın=",soyad,"\n","yaşın=",yaş,"\n","cinsiyetin=",cinsiyet,"\n","takımı=",takım,"\n","sevdigi hocan",sevdigihoca)`,
+        hasInput: false,
+        run: function(outputFn) {
+          const ad="ibrahim efe";
+          const soyad="tapanoğlu";
+          const yaş=14;
+          const cinsiyet="E";
+          const takım="FB";
+          const sevdigihoca="güngör hoca";
+          outputFn(`adın= ${ad} \n soyadın= ${soyad} \n yaşın= ${yaş} \n cinsiyetin= ${cinsiyet} \n takımı= ${takım} \n sevdigi hocan ${sevdigihoca}`);
+        }
+      },
+      {
+        id: "piton-4",
+        name: "piton 4.py",
+        desc: "Sayısal değişkenler ve aritmetik işlem hesabı.",
+        notes: "Değişkenlerle çarpma (*) ve toplama (+) matematiksel operatör kullanımı. (a*b*ı+f = 1*2*10+6 = 26)",
+        code: `a=1
+b=2
+c=3
+ç=4
+e=5
+f=6
+g=7
+ğ=8
+h=9
+ı=10
+print(a*b*ı+f)`,
+        hasInput: false,
+        run: function(outputFn) {
+          const a=1, b=2, c=3, ç=4, e=5, f=6, g=7, ğ=8, h=9, ı=10;
+          outputFn((a*b*ı+f).toString());
+        }
+      },
+      {
+        id: "piton-5",
+        name: "piton 5.py",
+        desc: "Aile bireyleri isim bilgileri yazdırılması.",
+        notes: "Alt çizgi (`_`) kullanarak değişken isimlendirme standartları (snake_case).",
+        code: `ad="brahim"
+soyad="tapanoğlu"
+yas=14
+baba_ad="mehmet"
+anne_ad="nevin"
+kardeş_ad="kerem"
+print("adın=",ad,"\n","soyadın=",soyad,"\n","yasın=",yas,"\n","baba_adı=",baba_ad,"\n","anne_adı=",anne_ad,"\n","kardeş_adı=",kardeş_ad)`,
+        hasInput: false,
+        run: function(outputFn) {
+          const ad="brahim", soyad="tapanoğlu", yas=14, baba_ad="mehmet", anne_ad="nevin", kardeş_ad="kerem";
+          outputFn(`adın= ${ad} \n soyadın= ${soyad} \n yasın= ${yas} \n baba_adı= ${baba_ad} \n anne_adı= ${anne_ad} \n kardeş_adı= ${kardeş_ad}`);
+        }
+      },
+      {
+        id: "piton-6",
+        name: "piton 6.py",
+        desc: "Yazılı notu ortalaması hesaplayıcı.",
+        notes: "`input()` ile kullanıcıdan veri alınır ve `int()` ile tam sayıya dönüştürülüp ders notu ortalaması hesaplanır.",
+        code: `y1=int (input("1. yazılı notunu giriniz"))
+y2=int (input("2. yazılı notunu giriniz"))
+p=int (input("performans notu giriniz="))
+print("Pt ders notu ortalamanız=",(y1+y2+p)/3)`,
+        hasInput: true,
+        steps: [
+          { prompt: "1. yazılı notunu giriniz: ", key: "y1", type: "int" },
+          { prompt: "2. yazılı notunu giriniz: ", key: "y2", type: "int" },
+          { prompt: "performans notu giriniz=: ", key: "p", type: "int" }
+        ],
+        execute: function(inputs, outputFn) {
+          const y1 = parseInt(inputs.y1) || 0;
+          const y2 = parseInt(inputs.y2) || 0;
+          const p = parseInt(inputs.p) || 0;
+          const avg = (y1 + y2 + p) / 3;
+          outputFn(`Pt ders notu ortalamanız= ${avg.toFixed(2)}`);
+        }
+      },
+      {
+        id: "piton-7",
+        name: "piton 7.py",
+        desc: "İki sayı ile toplama, bölme ve ortalama.",
+        notes: "Girilen iki sayının toplamı, bölümü ve aritmetik ortalamasını ekrana basar.",
+        code: `a=int(input("1. sayıyı giriniz"))
+b=int(input("2. sayıyı giriniz"))
+print(a,"+",b,"=",a+b, "\\n", a, "/",b,"=",a/b)
+print("sayıların ortalaması=",(a+b)/2)`,
+        hasInput: true,
+        steps: [
+          { prompt: "1. sayıyı giriniz: ", key: "a", type: "int" },
+          { prompt: "2. sayıyı giriniz: ", key: "b", type: "int" }
+        ],
+        execute: function(inputs, outputFn) {
+          const a = parseInt(inputs.a) || 0;
+          const b = parseInt(inputs.b) || 1;
+          outputFn(`${a} + ${b} = ${a+b} \n ${a} / ${b} = ${(a/b).toFixed(2)}`);
+          outputFn(`sayıların ortalaması= ${(a+b)/2}`);
+        }
+      },
+      {
+        id: "piton-8",
+        name: "piton 8.py",
+        desc: "Vücut Kitle İndeksi (VKİ) hesaplama.",
+        notes: "Kilo (kg) ve boy (m) değerleri kullanılarak VKİ formülü: `kilo / (boy * boy)` uygulanır.",
+        code: `k=int(input("Kilonuzu (kg) giriniz..:"))
+b=float(input("boyunuzu (m) giriniz..:"))
+vki=k/ (b*b)
+print("vki=",vki)`,
+        hasInput: true,
+        steps: [
+          { prompt: "Kilonuzu (kg) giriniz..:: ", key: "k", type: "int" },
+          { prompt: "boyunuzu (m) giriniz..:: ", key: "b", type: "float" }
+        ],
+        execute: function(inputs, outputFn) {
+          const k = parseFloat(inputs.k) || 0;
+          const b = parseFloat(inputs.b.replace(',', '.')) || 1;
+          const vki = k / (b * b);
+          outputFn(`vki= ${vki.toFixed(4)}`);
+        }
+      },
+      {
+        id: "piton-9",
+        name: "piton 9.py",
+        desc: "Ehliyet alma yaş kontrolü (if / else).",
+        notes: "Koşullu durum ifadeleri (`if - else`) kullanımı. Yaş 18 veya üzeri ise onay verir.",
+        code: `y=int(input("yaşınızı giriniz"))
+
+if y>=18:
+      print("ehliyet alabilirsiniz")
+            
+else:
+    print("ehliyet alamazsınız")`,
+        hasInput: true,
+        steps: [
+          { prompt: "yaşınızı giriniz: ", key: "y", type: "int" }
+        ],
+        execute: function(inputs, outputFn) {
+          const y = parseInt(inputs.y) || 0;
+          if (y >= 18) {
+            outputFn("ehliyet alabilirsiniz");
+          } else {
+            outputFn("ehliyet alamazsınız");
+          }
+        }
+      },
+      {
+        id: "piton-10",
+        name: "piton 10.py",
+        desc: "Suyun fiziksel hali derecesi (if - elif - else).",
+        notes: "Çoklu koşul yapısı (`if - elif - else`). Suyun sıcaklığına göre buz, su veya buhar çıktısı verir.",
+        code: `y=int(input("suyun derecesini giriniz..:"))
+if y<0:
+    print("buz")
+elif y<100:
+    print("su")
+else:
+    print("buhar")`,
+        hasInput: true,
+        steps: [
+          { prompt: "suyun derecesini giriniz..:: ", key: "y", type: "int" }
+        ],
+        execute: function(inputs, outputFn) {
+          const y = parseInt(inputs.y) || 0;
+          if (y < 0) {
+            outputFn("buz");
+          } else if (y < 100) {
+            outputFn("su");
+          } else {
+            outputFn("buhar");
+          }
+        }
+      }
+    ];
+
+    // Practice Challenges List
+    const practiceChallenges = [
+      {
+        title: "Soru 1: Adını ve Yaşını Yazdır",
+        desc: "Kullanıcıdan adını al ve ekrana 'Merhaba [ad]' yazdır.",
+        starterCode: `ad = input("Adınızı giriniz: ")
+print("Merhaba", ad)`
+      },
+      {
+        title: "Soru 2: İki Sayının Çarpımı",
+        desc: "Kullanıcıdan 2 sayı iste ve bunları çarpıp ekrana yazdır.",
+        starterCode: `sayi1 = int(input("1. Sayı: "))
+sayi2 = int(input("2. Sayı: "))
+carpim = sayi1 * sayi2
+print("Çarpım sonucu =", carpim)`
+      },
+      {
+        title: "Soru 3: Geçti / Kaldı Kontrolü",
+        desc: "Ders notu 50 ve üstü ise 'Geçtiniz', altı ise 'Kaldınız' yazdır.",
+        starterCode: `notu = int(input("Ders notunuzu giriniz: "))
+if notu >= 50:
+    print("Tebrikler, Geçtiniz!")
+else:
+    print("Maalesef Kaldınız.")`
+      },
+      {
+        title: "Soru 4: Pozitif mi Negatif mi?",
+        desc: "Girilen sayının 0'dan büyük mü küçük mü olduğunu belirle.",
+        starterCode: `s = int(input("Bir sayı giriniz: "))
+if s > 0:
+    print("Sayı Pozitiftir")
+elif s < 0:
+    print("Sayı Negatiftir")
+else:
+    print("Sayı Sıfırdır")`
+      }
+    ];
+
+    // State Variables
+    let currentMainTab = 'notes'; // 'notes' or 'practice'
+    let currentFileIndex = 0;
+    let notesInteractiveState = { stepIndex: 0, inputs: {} };
+    let pgInteractiveState = { linesQueue: [], inputsCollected: {} };
+
+    // DOM Elements
+    const fileListEl = document.getElementById('file-list');
+    const codeDisplayEl = document.getElementById('code-display');
+    const activeTitleEl = document.getElementById('active-file-title');
+    const activeDescEl = document.getElementById('active-file-desc');
+    const codeNotesEl = document.getElementById('code-notes');
+    const codeBadgeEl = document.getElementById('code-filename-badge');
+    const mobileCurrentModeEl = document.getElementById('mobile-current-mode');
+    const terminalBodyEl = document.getElementById('terminal-body');
+    const interactiveContainer = document.getElementById('interactive-input-container');
+    const inputPromptEl = document.getElementById('input-prompt');
+    const userInputField = document.getElementById('user-input-field');
+    const submitInputBtn = document.getElementById('submit-input-btn');
+    const searchInput = document.getElementById('search-input');
+
+    // Views & Nav
+    const notesView = document.getElementById('notes-view');
+    const practiceView = document.getElementById('practice-view');
+    const navNotesBtn = document.getElementById('nav-notes-btn');
+    const navPracticeBtn = document.getElementById('nav-practice-btn');
+    const notesFileSection = document.getElementById('notes-file-section');
+    const practiceChallengesSection = document.getElementById('practice-challenges-section');
+
+    // Playground Elements
+    const playgroundEditor = document.getElementById('playground-editor');
+    const pgTerminalBody = document.getElementById('pg-terminal-body');
+    const pgInteractiveContainer = document.getElementById('pg-interactive-input-container');
+    const pgInputPrompt = document.getElementById('pg-input-prompt');
+    const pgUserInputField = document.getElementById('pg-user-input-field');
+    const pgSubmitInputBtn = document.getElementById('pg-submit-input-btn');
+
+    // Mobile Sidebar Elements
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
+    // Switch Main Tabs (Notes vs Practice)
+    function switchMainTab(tab) {
+      currentMainTab = tab;
+      if (tab === 'notes') {
+        notesView.classList.remove('hidden');
+        practiceView.classList.add('hidden');
+        notesFileSection.classList.remove('hidden');
+        practiceChallengesSection.classList.add('hidden');
+
+        navNotesBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-xs transition-all bg-sky-600/20 border border-sky-500/40 text-sky-300";
+        navPracticeBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-xs transition-all text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 border border-transparent";
+        mobileCurrentModeEl.textContent = "Ders Notları";
+      } else {
+        notesView.classList.add('hidden');
+        practiceView.classList.remove('hidden');
+        notesFileSection.classList.add('hidden');
+        practiceChallengesSection.classList.remove('hidden');
+
+        navPracticeBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-xs transition-all bg-amber-600/20 border border-amber-500/40 text-amber-300";
+        navNotesBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-xs transition-all text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 border border-transparent";
+        mobileCurrentModeEl.textContent = "Kod Yazma";
+      }
+      closeMobileSidebar();
+    }
+
+    // Syntax Highlighter Helper
+    function highlightPython(code) {
+      const lines = code.split('\n');
+      return lines.map(line => {
+        if (line.trim().startsWith('#')) {
+          return `<span class="py-comment">${escapeHtml(line)}</span>`;
+        }
+
+        let formatted = escapeHtml(line);
+        const keywords = ['if', 'else', 'elif', 'print', 'int', 'float', 'input'];
+        keywords.forEach(kw => {
+          const reg = new RegExp(`\\b(${kw})\\b`, 'g');
+          formatted = formatted.replace(reg, `<span class="py-keyword">$1</span>`);
+        });
+
+        formatted = formatted.replace(/("[^"]*")|('[^']*')/g, '<span class="py-string">$1</span>');
+        formatted = formatted.replace(/\b(\d+(\.\d+)?)\b/g, '<span class="py-number">$1</span>');
+        return formatted;
+      }).join('\n');
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    // Render Sidebar File List
+    function renderFileList(filter = '') {
+      fileListEl.innerHTML = '';
+      pythonFiles.forEach((file, idx) => {
+        if (filter && !file.name.toLowerCase().includes(filter.toLowerCase()) && !file.desc.toLowerCase().includes(filter.toLowerCase())) {
+          return;
+        }
+
+        const isActive = idx === currentFileIndex;
+        const btn = document.createElement('button');
+        btn.className = `w-full text-left p-3 rounded-xl transition-all flex items-center justify-between group ${
+          isActive 
+            ? 'bg-sky-600/20 border border-sky-500/40 text-white font-medium shadow-md' 
+            : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 border border-transparent'
+        }`;
+
+        btn.onclick = () => selectFile(idx);
+
+        btn.innerHTML = `
+          <div class="flex items-center space-x-3 truncate">
+            <i class="fa-regular fa-file-code text-base ${isActive ? 'text-sky-400' : 'text-slate-500 group-hover:text-slate-300'}"></i>
+            <div class="truncate">
+              <div class="text-xs font-mono font-semibold truncate ${isActive ? 'text-sky-300' : 'text-slate-200'}">${file.name}</div>
+              <div class="text-[11px] text-slate-500 truncate">${file.desc}</div>
+            </div>
+          </div>
+          ${file.hasInput ? '<span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded font-mono ml-2">Input</span>' : ''}
+        `;
+
+        fileListEl.appendChild(btn);
+      });
+    }
+
+    // Render Challenges List in Sidebar
+    function renderChallengesList() {
+      const container = document.getElementById('challenges-list');
+      container.innerHTML = '';
+      practiceChallenges.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = "bg-slate-950/70 border border-slate-800 p-3 rounded-xl space-y-1.5 hover:border-amber-500/40 transition-colors";
+        div.innerHTML = `
+          <div class="text-xs font-semibold text-amber-300">${item.title}</div>
+          <div class="text-[11px] text-slate-400 leading-tight">${item.desc}</div>
+          <button onclick="loadChallenge(${index})" class="mt-2 w-full bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-white border border-amber-500/30 text-[11px] font-medium py-1 rounded-lg transition-all flex items-center justify-center space-x-1">
+            <i class="fa-solid fa-cloud-arrow-down text-[10px]"></i>
+            <span>Çözümü Yükle & Dene</span>
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function loadChallenge(index) {
+      const item = practiceChallenges[index];
+      playgroundEditor.value = item.starterCode;
+      switchMainTab('practice');
+      showToast(`'${item.title}' editöre yüklendi!`);
+    }
+
+    // Insert Code Snippet into Playground Editor
+    function insertSnippet(snippet) {
+      const el = playgroundEditor;
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      const text = el.value;
+      el.value = text.substring(0, start) + snippet + text.substring(end);
+      el.focus();
+      el.selectionStart = el.selectionEnd = start + snippet.length;
+    }
+
+    // Select and load notes file
+    function selectFile(index) {
+      currentFileIndex = index;
+      const file = pythonFiles[index];
+
+      activeTitleEl.textContent = file.name;
+      activeDescEl.textContent = file.desc;
+      codeNotesEl.textContent = file.notes;
+      codeBadgeEl.textContent = file.name;
+
+      codeDisplayEl.innerHTML = highlightPython(file.code);
+      resetTerminal();
+      renderFileList(searchInput.value);
+      closeMobileSidebar();
+    }
+
+    // Terminal Helper Functions
+    function appendTerminalOutput(text, type = 'normal') {
+      const line = document.createElement('div');
+      if (type === 'input') {
+        line.className = 'text-sky-300 font-semibold';
+      } else if (type === 'error') {
+        line.className = 'text-rose-400 font-semibold';
+      } else {
+        line.className = 'text-emerald-400 whitespace-pre-wrap';
+      }
+      line.textContent = text;
+      terminalBodyEl.appendChild(line);
+      terminalBodyEl.scrollTop = terminalBodyEl.scrollHeight;
+    }
+
+    function appendPgTerminalOutput(text, type = 'normal') {
+      const line = document.createElement('div');
+      if (type === 'input') {
+        line.className = 'text-amber-300 font-semibold';
+      } else if (type === 'error') {
+        line.className = 'text-rose-400 font-semibold';
+      } else {
+        line.className = 'text-amber-400 whitespace-pre-wrap';
+      }
+      line.textContent = text;
+      pgTerminalBody.appendChild(line);
+      pgTerminalBody.scrollTop = pgTerminalBody.scrollHeight;
+    }
+
+    function resetTerminal() {
+      terminalBodyEl.innerHTML = '<div class="text-slate-500 text-xs italic">Simülatör hazır. "Çalıştır" butonuna basarak kodu test edebilirsiniz.</div>';
+      interactiveContainer.classList.add('hidden');
+      notesInteractiveState = { stepIndex: 0, inputs: {} };
+    }
+
+    function resetPgTerminal() {
+      pgTerminalBody.innerHTML = '<div class="text-slate-500 text-xs italic">Kod yazıp "Kodu Çalıştır" butonuna basınız. Hatalar otomatik tespit edilir.</div>';
+      pgInteractiveContainer.classList.add('hidden');
+      pgInteractiveState = { linesQueue: [], inputsCollected: {} };
+    }
+
+    // Advanced Smart Python Diagnostic Engine
+    function analyzePythonCode(code) {
+      const lines = code.split('\n');
+      const declaredVars = new Set();
+      const stringVarTypes = new Set(); // tracks vars that hold string / raw input
+      const errors = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        const lineNum = i + 1;
+        const line = lines[i];
+        const trimmed = line.trim();
+
+        // Skip empty lines & full comments
+        if (!trimmed || trimmed.startsWith('#')) continue;
+
+        // 1. Unclosed quotes check
+        const doubleQuotes = (line.match(/"/g) || []).length;
+        const singleQuotes = (line.match(/'/g) || []).length;
+        if (doubleQuotes % 2 !== 0) {
+          errors.push({
+            line: lineNum,
+            type: "Sözdizimi Hatası (Unclosed String)",
+            message: `Çift tırnak (\`"\`) kapatılmamış! Açılan tırnak işaretini kapatmayı unuttun.`,
+            fix: `Örnek: print("Merhaba") şeklinde tırnağı kapatmalısın.`
+          });
+          continue;
+        }
+        if (singleQuotes % 2 !== 0) {
+          errors.push({
+            line: lineNum,
+            type: "Sözdizimi Hatası (Unclosed String)",
+            message: `Tek tırnak (\`'\`) kapatılmamış!`,
+            fix: `Örnek: print('Merhaba') şeklinde tırnağı kapatmalısın.`
+          });
+          continue;
+        }
+
+        // 2. Unclosed Parentheses check
+        const openParen = (line.match(/\(/g) || []).length;
+        const closeParen = (line.match(/\)/g) || []).length;
+        if (openParen > closeParen) {
+          errors.push({
+            line: lineNum,
+            type: "Parantez Hatası",
+            message: `Açılan parantez \`(\` kapatılmamış! Toplam ${openParen} açılış, ${closeParen} kapanış var.`,
+            fix: `Parantezlerin sonuna eksik olan \`)\` karakterini ekle.`
+          });
+          continue;
+        } else if (closeParen > openParen) {
+          errors.push({
+            line: lineNum,
+            type: "Parantez Hatası",
+            message: `Fazladan kapatma parantezi \`)\` kullanılmış!`,
+            fix: `Fazla parantezi silmelisin.`
+          });
+          continue;
+        }
+
+        // 3. Colon Check for IF, ELIF, ELSE, FOR, WHILE
+        if (/^(if|elif|else|for|while)\b/.test(trimmed)) {
+          if (!trimmed.endsWith(':')) {
+            const kw = trimmed.split(' ')[0].replace(':', '');
+            errors.push({
+              line: lineNum,
+              type: "İki Nokta Hatası (SyntaxError)",
+              message: `\`${kw}\` deyiminin sonuna iki nokta (\`:\`) koymayı unuttun!`,
+              fix: `Satırın sonuna \`:\` eklemelisin. Örnek: \`${trimmed}:\``
+            });
+            continue;
+          }
+
+          // 4. Single equals inside IF check e.g., if y = 18:
+          if (/^if\s+[^=]+=[^=]+:/.test(trimmed)) {
+            errors.push({
+              line: lineNum,
+              type: "Atama Operatörü Hatası",
+              message: `\`if\` koşulunda tek eşittir (\`=\`) kullanılamaz! Tek \`=\` değişken atamak içindir. Karşılaştırma için \`==\` kullanılmalıdır.`,
+              fix: `Değiştir: \`${trimmed.replace('=', '==')}\``
+            });
+            continue;
+          }
+
+          // Check if next line has proper indentation
+          if (i + 1 < lines.length) {
+            const nextLine = lines[i + 1];
+            if (nextLine.trim() && !nextLine.trim().startsWith('#') && !nextLine.startsWith(' ') && !nextLine.startsWith('\t')) {
+              errors.push({
+                line: i + 2,
+                type: "Girinti Hatası (IndentationError)",
+                message: `\`${trimmed}\` bloğunun altındaki satır girintilenmemiş! Python'da koşul altındaki kodlar 4 boşluk içeriden başlamalıdır.`,
+                fix: `Alt satırın başına boşluk (Tab veya 4 space) ekle.`
+              });
+              continue;
+            }
+          }
+        }
+
+        // 5. Variable Assignment & Type Detection
+        if (trimmed.includes('=') && !trimmed.includes('==') && !trimmed.startsWith('if') && !trimmed.startsWith('print')) {
+          const parts = trimmed.split('=');
+          const varName = parts[0].trim();
+          const rhs = parts.slice(1).join('=').trim();
+
+          // Track if string input
+          if (rhs.startsWith('input(') && !rhs.startsWith('int(input') && !rhs.startsWith('float(input')) {
+            stringVarTypes.add(varName);
+          } else if (rhs.startsWith('int(') || rhs.startsWith('float(') || /^\d+(\.\d+)?$/.test(rhs)) {
+            stringVarTypes.delete(varName);
+          }
+
+          declaredVars.add(varName);
+        }
+
+        // 6. Type Error: Mathematical operations on raw input() without int() or float()
+        if (/[+\-*\/]/.test(trimmed) && !trimmed.startsWith('#')) {
+          stringVarTypes.forEach(strVar => {
+            // Regexp to see if stringVar is being added/multiplied with number or another var without int conversion
+            const reg = new RegExp(`\\b${strVar}\\b\\s*[+\\-*\\/]`);
+            if (reg.test(trimmed)) {
+              errors.push({
+                line: lineNum,
+                type: "Veri Tipi Hatası (TypeError)",
+                message: `\`${strVar}\` değişkeni \`input()\` ile metin (String) olarak alınmış. Metinler ile matematiksel işlem yapılamaz!`,
+                fix: `Girdiyi sayıya çevir: \`${strVar} = int(input(...))\` veya \`float(input(...))\` kullan.`
+              });
+            }
+          });
+        }
+
+        // 7. Name Error (Undeclared Variables check in print/expressions)
+        if (trimmed.startsWith('print(')) {
+          const content = trimmed.substring(6, trimmed.length - 1);
+          // Split content ignoring string literals
+          const tokens = content.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/);
+          tokens.forEach(tok => {
+            const t = tok.trim();
+            // Check identifier
+            if (/^[a-zA-Z_ıİğĞüÜşŞöÖcÇ][a-zA-Z0-9_ıİğĞüÜşŞöÖcÇ]*$/.test(t)) {
+              if (!declaredVars.has(t) && !['True', 'False', 'None'].includes(t)) {
+                errors.push({
+                  line: lineNum,
+                  type: "TANIMSIZ DEĞİŞKEN (NameError)",
+                  message: `\`${t}\` adında bir değişken tanımlanmamış ama \`print\` içinde kullanılmaya çalışılıyor!`,
+                  fix: `Önce \`${t} = ...\` şeklinde değişkene bir değer atamalısın.`
+                });
+              }
+            }
+          });
+        }
+      }
+
+      return errors;
+    }
+
+    // Show Structured Error Panel in Playground Terminal
+    function renderDiagnosticError(err) {
+      pgTerminalBody.innerHTML = '';
+      const container = document.createElement('div');
+      container.className = "bg-rose-950/80 border border-rose-500/50 rounded-xl p-4 text-rose-200 space-y-3 font-sans animate-fade-in";
+
+      container.innerHTML = `
+        <div class="flex items-center justify-between border-b border-rose-500/30 pb-2">
+          <div class="flex items-center space-x-2 text-rose-400 font-bold text-xs uppercase tracking-wider">
+            <i class="fa-solid fa-triangle-exclamation text-base"></i>
+            <span>${err.type}</span>
+          </div>
+          <span class="bg-rose-900/80 text-rose-300 font-mono text-xs px-2.5 py-0.5 rounded-full border border-rose-700">Satır ${err.line}</span>
+        </div>
+
+        <div class="space-y-1">
+          <div class="text-xs font-semibold text-white">Neden Yanlış?</div>
+          <p class="text-xs text-rose-200/90 leading-relaxed font-mono">${escapeHtml(err.message)}</p>
+        </div>
+
+        <div class="bg-black/50 border border-rose-900/60 rounded-lg p-2.5 space-y-1">
+          <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Nasıl Düzeltebilirsin?
+          </div>
+          <div class="text-xs font-mono text-emerald-300 whitespace-pre-wrap">${escapeHtml(err.fix)}</div>
+        </div>
+      `;
+
+      pgTerminalBody.appendChild(container);
+    }
+
+    // Interactive Interpreter for Playground Code Editor with Diagnostics
+    function runPlaygroundCode() {
+      const rawCode = playgroundEditor.value.trim();
+      pgTerminalBody.innerHTML = '';
+
+      if (!rawCode) {
+        appendPgTerminalOutput('Hata: Çalıştırılacak kod yazılmadı!', 'error');
+        return;
+      }
+
+      // Step 1: Run Smart Code Analyzer
+      const diagnostics = analyzePythonCode(rawCode);
+      if (diagnostics.length > 0) {
+        // Show first detected diagnostic error
+        renderDiagnosticError(diagnostics[0]);
+        return;
+      }
+
+      // Step 2: If no diagnostic errors, execute simulated output
+      appendPgTerminalOutput('>>> Python 3.10.4 [Sözdizimi Doğrulandı ✓ - Kod Çalıştırılıyor...]');
+
+      try {
+        const lines = rawCode.split('\n');
+        const variables = {};
+        const inputsNeeded = [];
+
+        // Scan for input() statements
+        lines.forEach((line, index) => {
+          const trim = line.trim();
+          if (trim.includes('input(')) {
+            const matchPrompt = trim.match(/input\s*\(\s*["']?([^"']*)["']?\s*\)/);
+            const promptText = matchPrompt ? matchPrompt[1] : 'Değer giriniz: ';
+            
+            const varMatch = trim.match(/^([a-zA-Z_0-9çğıöşüÇĞİÖŞÜ]+)\s*=/);
+            const varName = varMatch ? varMatch[1].trim() : `val_${index}`;
+
+            inputsNeeded.push({
+              lineIndex: index,
+              varName: varName,
+              prompt: promptText,
+              isInt: trim.includes('int('),
+              isFloat: trim.includes('float(')
+            });
+          }
+        });
+
+        if (inputsNeeded.length > 0) {
+          pgInteractiveState = {
+            lines: lines,
+            inputsQueue: inputsNeeded,
+            currentQueueIndex: 0,
+            variables: {}
+          };
+          promptNextPgInput();
+        } else {
+          executeParsedLines(lines, variables);
+          appendPgTerminalOutput('\n[Program başarıyla tamamlandı ✓]');
+        }
+
+      } catch (err) {
+        appendPgTerminalOutput(`Çalıştırma Hatası: ${err.message}`, 'error');
+      }
+    }
+
+    function promptNextPgInput() {
+      const state = pgInteractiveState;
+      const currentInput = state.inputsQueue[state.currentQueueIndex];
+
+      if (currentInput) {
+        pgInteractiveContainer.classList.remove('hidden');
+        pgInputPrompt.textContent = currentInput.prompt || 'Input: ';
+        pgUserInputField.value = '';
+        pgUserInputField.focus();
+      } else {
+        pgInteractiveContainer.classList.add('hidden');
+        executeParsedLines(state.lines, state.variables);
+        appendPgTerminalOutput('\n[Program tamamlandı]');
+      }
+    }
+
+    function handlePgInputSubmit() {
+      const val = pgUserInputField.value.trim();
+      const state = pgInteractiveState;
+      const currentInput = state.inputsQueue[state.currentQueueIndex];
+
+      if (!currentInput) return;
+
+      appendPgTerminalOutput(`${currentInput.prompt}${val}`, 'input');
+
+      let finalVal = val;
+      if (currentInput.isInt) finalVal = parseInt(val) || 0;
+      else if (currentInput.isFloat) finalVal = parseFloat(val.replace(',', '.')) || 0;
+
+      state.variables[currentInput.varName] = finalVal;
+      state.currentQueueIndex++;
+
+      promptNextPgInput();
+    }
+
+    // Simple JS execution simulation of basic python statements
+    function executeParsedLines(lines, envVars) {
+      const vars = { ...envVars };
+      
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line || line.startsWith('#')) continue;
+
+        // Check assignment statement (e.g., a = 5 or msg = "merhaba")
+        if (line.includes('=') && !line.includes('==') && !line.startsWith('if') && !line.startsWith('print')) {
+          const parts = line.split('=');
+          const varName = parts[0].trim();
+          let expr = parts.slice(1).join('=').trim();
+
+          // Skip if input statement (already collected)
+          if (expr.includes('input(')) continue;
+
+          try {
+            // Evaluate expr safely with known vars
+            const evaluated = evalExpr(expr, vars);
+            vars[varName] = evaluated;
+          } catch(e) {
+            vars[varName] = expr.replace(/['"]/g, '');
+          }
+          continue;
+        }
+
+        // Print statement
+        if (line.startsWith('print(') && line.endsWith(')')) {
+          const content = line.substring(6, line.length - 1);
+          const output = parsePrintContent(content, vars);
+          appendPgTerminalOutput(output);
+          continue;
+        }
+
+        // Simple IF statement block
+        if (line.startsWith('if ')) {
+          const condMatch = line.match(/^if\s+(.*):$/);
+          if (condMatch) {
+            const condStr = condMatch[1];
+            const isTrue = evalCondition(condStr, vars);
+
+            // Read indented body
+            let ifBody = [];
+            let elseBody = [];
+            let inElse = false;
+            let j = i + 1;
+
+            while (j < lines.length) {
+              const subLine = lines[j];
+              if (subLine.startsWith('elif ') || subLine.startsWith('else:')) {
+                inElse = true;
+                j++;
+                continue;
+              }
+              if (subLine.startsWith('    ') || subLine.startsWith('\t')) {
+                if (inElse) elseBody.push(subLine.trim());
+                else ifBody.push(subLine.trim());
+                j++;
+              } else {
+                break;
+              }
+            }
+            i = j - 1; // advance main loop
+
+            const targetBody = isTrue ? ifBody : elseBody;
+            executeParsedLines(targetBody, vars);
+          }
+        }
+      }
+    }
+
+    function evalExpr(expr, vars) {
+      let code = expr;
+      // Replace variables in code string
+      Object.keys(vars).forEach(v => {
+        const reg = new RegExp(`\\b${v}\\b`, 'g');
+        code = code.replace(reg, JSON.stringify(vars[v]));
+      });
+      return Function(`"use strict"; return (${code})`)();
+    }
+
+    function evalCondition(cond, vars) {
+      let code = cond;
+      Object.keys(vars).forEach(v => {
+        const reg = new RegExp(`\\b${v}\\b`, 'g');
+        code = code.replace(reg, JSON.stringify(vars[v]));
+      });
+      return Function(`"use strict"; return (${code})`)();
+    }
+
+    function parsePrintContent(content, vars) {
+      // Split by commas outside strings
+      const parts = content.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/);
+      const evaluatedParts = parts.map(part => {
+        let p = part.trim();
+        if ((p.startsWith('"') && p.endsWith('"')) || (p.startsWith("'") && p.endsWith("'"))) {
+          return p.substring(1, p.length - 1).replace(/\\n/g, '\n');
+        }
+        if (vars.hasOwnProperty(p)) {
+          return vars[p];
+        }
+        try {
+          return evalExpr(p, vars);
+        } catch(e) {
+          return p;
+        }
+      });
+      return evaluatedParts.join(' ');
+    }
+
+    // Run Current Notes File Logic
+    function runCurrentCode() {
+      const file = pythonFiles[currentFileIndex];
+      resetTerminal();
+      appendTerminalOutput(`>>> Python 3.10.4 [${file.name} çalıştırılıyor...]`);
+
+      if (file.hasInput) {
+        notesInteractiveState = { stepIndex: 0, inputs: {} };
+        promptNextNotesInput();
+      } else if (typeof file.run === 'function') {
+        file.run((text) => appendTerminalOutput(text));
+        appendTerminalOutput('\n[Program başarıyla tamamlandı ✓]');
+      }
+    }
+
+    function promptNextNotesInput() {
+      const file = pythonFiles[currentFileIndex];
+      const step = file.steps[notesInteractiveState.stepIndex];
+
+      if (step) {
+        interactiveContainer.classList.remove('hidden');
+        inputPromptEl.textContent = step.prompt;
+        userInputField.value = '';
+        userInputField.focus();
+      } else {
+        interactiveContainer.classList.add('hidden');
+        if (typeof file.execute === 'function') {
+          file.execute(notesInteractiveState.inputs, (text) => appendTerminalOutput(text));
+        }
+        appendTerminalOutput('\n[Program başarıyla tamamlandı ✓]');
+      }
+    }
+
+    function handleInputSubmit() {
+      const val = userInputField.value.trim();
+      const file = pythonFiles[currentFileIndex];
+      const step = file.steps[notesInteractiveState.stepIndex];
+
+      if (!step) return;
+
+      appendTerminalOutput(`${step.prompt}${val}`, 'input');
+      notesInteractiveState.inputs[step.key] = val;
+      notesInteractiveState.stepIndex++;
+
+      promptNextNotesInput();
+    }
+
+    // Copy Code Helper
+    document.getElementById('copy-code-btn').onclick = () => {
+      let textToCopy = "";
+      if (currentMainTab === 'notes') {
+        textToCopy = pythonFiles[currentFileIndex].code;
+      } else {
+        textToCopy = playgroundEditor.value;
+      }
+      
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showToast("Kod panoya kopyalandı!");
+      }).catch(() => {
+        // Fallback for older devices/iframes
+        const dummy = document.createElement("textarea");
+        document.body.appendChild(dummy);
+        dummy.value = textToCopy;
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+        showToast("Kod panoya kopyalandı!");
+      });
+    };
+
+    // Toast Message Helper
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+      }, 2500);
+    }
+
+    // Mobile Sidebar Toggle
+    function toggleMobileSidebar() {
+      const isHidden = sidebar.classList.contains('-translate-x-full');
+      if (isHidden) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebarBackdrop.classList.remove('hidden');
+        setTimeout(() => sidebarBackdrop.classList.remove('opacity-0'), 10);
+      } else {
+        closeMobileSidebar();
+      }
+    }
+
+    function closeMobileSidebar() {
+      sidebar.classList.add('-translate-x-full');
+      sidebarBackdrop.classList.add('opacity-0');
+      setTimeout(() => sidebarBackdrop.classList.add('hidden'), 300);
+    }
+
+    // Event Listeners Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      // Mobile sidebar listeners
+      mobileMenuBtn.addEventListener('click', toggleMobileSidebar);
+      sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+
+      // Search Filter
+      searchInput.addEventListener('input', (e) => {
+        renderFileList(e.target.value);
+      });
+
+      // Notes Terminal Buttons
+      document.getElementById('run-code-btn').addEventListener('click', runCurrentCode);
+      document.getElementById('clear-terminal-btn').addEventListener('click', resetTerminal);
+      submitInputBtn.addEventListener('click', handleInputSubmit);
+      userInputField.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleInputSubmit();
+      });
+
+      // Playground Buttons & Keyboard events
+      document.getElementById('run-playground-btn').addEventListener('click', runPlaygroundCode);
+      document.getElementById('clear-editor-btn').addEventListener('click', () => {
+        playgroundEditor.value = '';
+        resetPgTerminal();
+      });
+      document.getElementById('clear-pg-terminal-btn').addEventListener('click', resetPgTerminal);
+      pgSubmitInputBtn.addEventListener('click', handlePgInputSubmit);
+      pgUserInputField.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handlePgInputSubmit();
+      });
+
+      // Tab Key Support inside Playground Textarea
+      playgroundEditor.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          insertSnippet('    ');
+        }
+      });
+
+      // Render Initial Data
+      renderFileList();
+      renderChallengesList();
+      selectFile(0);
+    });
+  </script>
+</body>
+</html>
